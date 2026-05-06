@@ -25,7 +25,10 @@ const Header = () => {
   return (
     <header className="bg-slate-900/95 backdrop-blur-md text-white shadow-2xl sticky top-0 z-50 border-b border-slate-700/50 py-2">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-        <Link to="/" className="flex items-center space-x-2 group shrink-0">
+        <Link
+          to={user?.role === "admin" ? "/admin/dashboard" : "/"}
+          className="flex items-center space-x-2 group shrink-0"
+        >
           <div className="bg-teal-500 p-1.5 rounded-lg group-hover:rotate-12 transition-transform duration-300">
             <svg
               className="w-5 h-5 sm:w-6 sm:h-6 text-slate-900"
@@ -51,19 +54,42 @@ const Header = () => {
         <nav className="hidden md:flex items-center space-x-6">
           {user ? (
             <>
-              <Link
-                to="/"
-                className={`text-sm font-bold uppercase tracking-widest transition-all ${isActive("/") ? "text-teal-400 border-b-2 border-teal-500" : "text-slate-400 hover:text-white border-b-2 border-transparent"}`}
-              >
-                Dashboard
-              </Link>
+              {user?.role !== "admin" && (
+                <Link
+                  to="/"
+                  className={`text-sm font-bold uppercase tracking-widest transition-all ${
+                    isActive("/")
+                      ? "text-teal-400 border-b-2 border-teal-500"
+                      : "text-slate-400 hover:text-white border-b-2 border-transparent"
+                  }`}
+                >
+                  Dashboard
+                </Link>
+              )}
 
               <Link
                 to="/profile"
-                className={`text-sm font-bold uppercase tracking-widest transition-all ${isActive("/profile") ? "text-teal-400 border-b-2 border-teal-500" : "text-slate-400 hover:text-white border-b-2 border-transparent"}`}
+                className={`text-sm font-bold uppercase tracking-widest transition-all ${
+                  isActive("/profile")
+                    ? "text-teal-400 border-b-2 border-teal-500"
+                    : "text-slate-400 hover:text-white border-b-2 border-transparent"
+                }`}
               >
                 Profile
               </Link>
+
+              {user?.role === "admin" && (
+                <Link
+                  to="/admin/dashboard"
+                  className={`text-sm font-bold uppercase tracking-widest transition-all ${
+                    isActive("/admin/dashboard")
+                      ? "text-teal-400 border-b-2 border-teal-500"
+                      : "text-slate-400 hover:text-white border-b-2 border-transparent"
+                  }`}
+                >
+                  Admin
+                </Link>
+              )}
 
               <div className="flex items-center space-x-2 bg-slate-800/50 px-4 py-1.5 rounded-full border border-slate-700">
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
@@ -83,14 +109,22 @@ const Header = () => {
             <div className="flex space-x-6">
               <Link
                 to="/login"
-                className={`text-sm font-bold uppercase tracking-widest transition-all ${isActive("/login") ? "text-teal-400 border-b-2 border-teal-500" : "text-slate-400 hover:text-white border-b-2 border-transparent"}`}
+                className={`text-sm font-bold uppercase tracking-widest transition-all ${
+                  isActive("/login")
+                    ? "text-teal-400 border-b-2 border-teal-500"
+                    : "text-slate-400 hover:text-white border-b-2 border-transparent"
+                }`}
               >
                 Login
               </Link>
 
               <Link
                 to="/register"
-                className={`text-sm font-bold uppercase tracking-widest transition-all ${isActive("/register") ? "text-teal-400 border-b-2 border-teal-500" : "text-slate-400 hover:text-white border-b-2 border-transparent"}`}
+                className={`text-sm font-bold uppercase tracking-widest transition-all ${
+                  isActive("/register")
+                    ? "text-teal-400 border-b-2 border-teal-500"
+                    : "text-slate-400 hover:text-white border-b-2 border-transparent"
+                }`}
               >
                 Register
               </Link>
@@ -128,7 +162,7 @@ const Header = () => {
       </div>
 
       {isMenuOpen && (
-        <div className="md:hidden bg-slate-900 border-t border-slate-800 animate-in slide-in-from-top-2 duration-300">
+        <div className="md:hidden bg-slate-900 border-t border-slate-800">
           <div className="px-6 py-8 space-y-4">
             {user ? (
               <>
@@ -139,21 +173,41 @@ const Header = () => {
                   </span>
                 </div>
 
-                <Link
-                  to="/"
-                  onClick={() => setIsMenuOpen(false)}
-                  className={`block py-4 text-xl font-black uppercase tracking-widest border-b border-slate-800 ${isActive("/") ? "text-teal-400" : "text-slate-400"}`}
-                >
-                  Dashboard
-                </Link>
+                {user?.role !== "admin" && (
+                  <Link
+                    to="/"
+                    onClick={() => setIsMenuOpen(false)}
+                    className={`block py-4 text-xl font-black uppercase tracking-widest border-b border-slate-800 ${
+                      isActive("/") ? "text-teal-400" : "text-slate-400"
+                    }`}
+                  >
+                    Dashboard
+                  </Link>
+                )}
 
                 <Link
                   to="/profile"
                   onClick={() => setIsMenuOpen(false)}
-                  className={`block py-4 text-xl font-black uppercase tracking-widest border-b border-slate-800 ${isActive("/profile") ? "text-teal-400" : "text-slate-400"}`}
+                  className={`block py-4 text-xl font-black uppercase tracking-widest border-b border-slate-800 ${
+                    isActive("/profile") ? "text-teal-400" : "text-slate-400"
+                  }`}
                 >
                   Profile
                 </Link>
+
+                {user?.role === "admin" && (
+                  <Link
+                    to="/admin/dashboard"
+                    onClick={() => setIsMenuOpen(false)}
+                    className={`block py-4 text-xl font-black uppercase tracking-widest border-b border-slate-800 ${
+                      isActive("/admin/dashboard")
+                        ? "text-teal-400"
+                        : "text-slate-400"
+                    }`}
+                  >
+                    Admin
+                  </Link>
+                )}
 
                 <button
                   onClick={onLogout}
@@ -167,7 +221,9 @@ const Header = () => {
                 <Link
                   to="/login"
                   onClick={() => setIsMenuOpen(false)}
-                  className={`block py-4 text-xl font-black uppercase tracking-widest border-b border-slate-800 ${isActive("/login") ? "text-teal-400" : "text-slate-400"}`}
+                  className={`block py-4 text-xl font-black uppercase tracking-widest border-b border-slate-800 ${
+                    isActive("/login") ? "text-teal-400" : "text-slate-400"
+                  }`}
                 >
                   Login
                 </Link>
@@ -175,7 +231,9 @@ const Header = () => {
                 <Link
                   to="/register"
                   onClick={() => setIsMenuOpen(false)}
-                  className={`block py-4 text-xl font-black uppercase tracking-widest ${isActive("/register") ? "text-teal-400" : "text-slate-400"}`}
+                  className={`block py-4 text-xl font-black uppercase tracking-widest ${
+                    isActive("/register") ? "text-teal-400" : "text-slate-400"
+                  }`}
                 >
                   Register
                 </Link>

@@ -1,32 +1,55 @@
 import express from "express";
-import { 
-    createSession, 
-    deleteSession, 
-    endSession, 
-    getSessionById, 
-    getSessions, 
-    submitAnswer
+import {
+  createSession,
+  deleteSession,
+  endSession,
+  getSessionById,
+  getSessions,
+  submitAnswer,
 } from "../controllers/sessionController.js";
-import { protect } from "../middleware/authMiddleware.js";
+
+import { protect, admin } from "../middleware/authMiddleware.js";
 import { uploadSingleAudio } from "../middleware/uploadMiddleware.js";
+import Session from "../models/SessionModel.js";
 
 const router = express.Router();
 
-// Apply auth protection to ALL routes in this file automatically
+// Apply auth to all
 router.use(protect);
 
-// 1. Root Routes ("/")
-router.route("/")
-    .get(getSessions)      // Fetch all sessions
-    .post(createSession);  // Create new session
+// ================= USER ROUTES =================
 
-// 2. ID Routes ("/:id")
-router.route("/:id")
-    .get(getSessionById)   // View session details
-    .delete(deleteSession); // Delete session
+// Normal user routes
+router.route("/").get(getSessions).post(createSession);
 
-// 3. Action Routes
+router.route("/:id").get(getSessionById).delete(deleteSession);
+
 router.route("/:id/submit-answer").post(uploadSingleAudio, submitAnswer);
 router.route("/:id/end").post(endSession);
+
+// ================= ADMIN ROUTES =================
+
+// Get ALL sessions (not only current user)
+router.get("/admin/all", admin, async (req, res) => {
+  const sessions = await Session.find()
+    .populate("user", "name email")
+    .sort({ createdAt: -1 });
+
+  res.json(sessions);
+});
+
+// Delete ANY session (admin power)
+router.delete("/admin/:id", admin, async (req, res) => {
+  const session = await Session.findById(req.params.id);
+
+  if (!session) {
+    res.status(404);
+    throw new Error("Session not found");
+  }
+
+  await session.deleteOne();
+
+  res.json({ message: "Session deleted by admin" });
+});
 
 export default router;

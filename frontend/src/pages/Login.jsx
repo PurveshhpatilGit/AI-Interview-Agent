@@ -4,13 +4,15 @@ import { login, googleLogin, reset } from "../features/auth/authSlice";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { GoogleLogin } from "@react-oauth/google";
+
 const Login = () => {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
+    loginAs: "user",
   });
 
-  const { email, password } = formData;
+  const { email, password, loginAs } = formData;
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -26,7 +28,12 @@ const Login = () => {
     }
 
     if (isSuccess || user) {
-      navigate("/");
+      if (user?.role === "admin") {
+        navigate("/admin/dashboard");
+      } else {
+        navigate("/");
+      }
+
       dispatch(reset());
     }
   }, [user, isError, isSuccess, message, navigate, dispatch]);
@@ -41,16 +48,23 @@ const Login = () => {
   const onSubmit = (e) => {
     e.preventDefault();
 
-    const userData = {
-      email,
-      password,
-    };
-    dispatch(login(userData));
+    dispatch(
+      login({
+        email,
+        password,
+        loginAs,
+      }),
+    );
   };
 
   const handleGoogleSuccess = (credentialResponse) => {
     if (credentialResponse.credential) {
-      dispatch(googleLogin(credentialResponse.credential));
+      dispatch(
+        googleLogin({
+          token: credentialResponse.credential,
+          loginAs,
+        }),
+      );
     } else {
       toast.error("Something went wrong. Please try again.");
     }
@@ -71,25 +85,44 @@ const Login = () => {
           <h2 className="text-xs font-black uppercase tracking-[0.3em] text-teal-600 mb-2">
             AI Interviewer
           </h2>
+
           <h1 className="text-3xl sm:text-4xl font-black text-gray-900 leading-tight">
             Welcome <span className="text-teal-500">Back</span>
           </h1>
+
           <p className="text-gray-500 mt-3 text-sm sm:text-base px-2">
-            Sign In to sharpen your technical skills.
+            Select login type and continue.
           </p>
         </div>
 
         <form onSubmit={onSubmit} className="grid grid-cols-1 gap-4">
           <div className="space-y-1">
             <label className="text-[10px] font-bold uppercase text-gray-400 ml-1">
+              Login As
+            </label>
+
+            <select
+              name="loginAs"
+              value={loginAs}
+              onChange={onChange}
+              className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none transition-all"
+            >
+              <option value="user">User</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold uppercase text-gray-400 ml-1">
               Email
             </label>
+
             <input
               type="email"
               name="email"
               value={email}
-              className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none transition-all "
-              placeholder="siddhant@gmail.com"
+              className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none transition-all"
+              placeholder="purvesh@gmail.com"
               onChange={onChange}
               required
             />
@@ -99,11 +132,12 @@ const Login = () => {
             <label className="text-[10px] font-bold uppercase text-gray-400 ml-1">
               Password
             </label>
+
             <input
               type="password"
               name="password"
               value={password}
-              className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none transition-all "
+              className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none transition-all"
               placeholder="********"
               onChange={onChange}
               required
@@ -114,7 +148,7 @@ const Login = () => {
             type="submit"
             className="w-full bg-teal-600 text-white p-3.5 rounded-xl font-bold hover:bg-teal-700 transition-all shadow-lg shadow-teal-100 mt-4 active:scale-[0.98]"
           >
-            Login to Account
+            Login as {loginAs === "admin" ? "Admin" : "User"}
           </button>
         </form>
 
